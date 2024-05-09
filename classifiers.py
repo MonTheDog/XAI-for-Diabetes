@@ -95,8 +95,8 @@ def find_duplicated_rows(dataset):
 
 
 def is_dataset_balanced(dataset):
-    plt.pie(dataset["Outcome"].value_counts(), labels=["Diabetico", "Non Diabetico"],
-            explode=(0, 0.05), autopct="%0.2f", colors=["#36ada4", "#f77189"])
+    plt.pie(dataset["Outcome"].value_counts(), labels=["Non Diabetico", "Diabetico"],
+            explode=(0, 0.05), autopct="%0.2f", colors=["#f77189", "#36ada4"])
     plt.savefig("images/dataset_balancement.png")
     plt.show()
     plt.close("all")
