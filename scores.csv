@@ -1,0 +1,5 @@
+,Accuracy,Precision,Recall,F1,AUC
+Random Forest,0.825,0.7982,0.87,0.8325,0.825
+Support Vector Machine,0.82,0.7909,0.87,0.8286,0.82
+XGBoost,0.81,0.7981,0.83,0.8137,0.81
+Neural Network,0.835,0.8131,0.87,0.8406,0.835
