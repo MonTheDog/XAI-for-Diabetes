@@ -158,6 +158,10 @@ def scale_dataset(dataset):
     X = scaler.transform(dataset.drop(["Outcome"], axis=1))
     y = dataset["Outcome"]
 
+    # Salviamo lo scaler per poter riportare i dati alla scala originale in un secondo momento
+    with open("scaler.pkl", "wb") as file:
+        pickle.dump(scaler, file)
+
     return X, y
 
 
