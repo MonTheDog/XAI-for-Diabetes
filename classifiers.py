@@ -375,7 +375,7 @@ if __name__ == "__main__":
     # Testeremo i seguenti modelli: Random Forest, Support Vector Machine, XGBoost e una rete neurale
     models = {
         "Random Forest": RandomForestClassifier(random_state=25),
-        "Support Vector Machine": SVC(),
+        "Support Vector Machine": SVC(probability=True),
         "XGBoost": xgb.XGBClassifier(objective="binary:logistic"),
         "Neural Network": create_neural_network()
     }

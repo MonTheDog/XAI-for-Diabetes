@@ -6,6 +6,8 @@ import shap
 import pickle
 import random as rn
 import lime
+import ciu
+from anchor import anchor_tabular
 
 # Settiamo il seed per la riproducibilità
 os.environ["PYTHONHASHSEED"] = "25"
@@ -18,6 +20,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 warnings.filterwarnings("ignore")
 # Cambiamo le impostazioni di pandas per visualizzare tutte le colonne
 pd.set_option('display.max_columns', None)
+# Definiamo come formattare i numeri nei dataframe, senza notazione esponenziale
+pd.set_option('display.float_format', lambda x: '%.8f' % x)
 
 
 
@@ -40,7 +44,7 @@ if __name__ == '__main__':
         scaler = pickle.load(f)
 
     # Carichiamo il dataset e prendiamone una riga
-    target_row = 0
+    target_row = 1
 
     diabetes_dataset = pd.read_csv("diabetes.csv")
     X_scaled = scaler.transform(diabetes_dataset.drop(["Outcome"], axis=1))
@@ -109,7 +113,6 @@ if __name__ == '__main__':
 
     # Otteniamo l'explanation con LIME
     for model in models.keys():
-        print()
         explainer = lime.lime_tabular.LimeTabularExplainer(X_scaled, mode="regression")
 
         explanation = explainer.explain_instance(scaled_row.flatten(), models[model].predict, num_features=8)
@@ -137,6 +140,46 @@ if __name__ == '__main__':
 
         # Aggiungiamo la riga al dataframe
         explainability_score.loc[model + " LIME"] = sorted_row
+
+    # Ricostruiamo il dataframe ma scalato
+    dataframe_scaled = pd.DataFrame(X_scaled, columns=diabetes_dataset.columns[:-1])
+
+    # Otteniamo l'explanation con CIU
+    for model in models.keys():
+        if model == "Neural Network":
+            CIU = ciu.CIU(models[model].predict, ["Diabetes"], data=dataframe_scaled)
+            CIU_explanation = CIU.explain(scaled_row_df)
+        else:
+            CIU = ciu.CIU(models[model].predict_proba, ["No Diabetes","Diabetes"], data=dataframe_scaled)
+            CIU_explanation = CIU.explain(scaled_row_df, output_inds=predictions[model])
+
+        explainability_score.loc[model + " CI"] = CIU_explanation.T[0:1].values.flatten()
+        explainability_score.loc[model + " CU"] = CIU_explanation.T[1:2].values.flatten()
+
+    # Wrapper per ottenere la previsione per la Rete Neurale, così da rispettare la firma della funzione di Anchor
+    def flatten_prediction(scaled_row):
+        result = models["Neural Network"].predict(scaled_row, verbose=0)
+        return (result > 0.5).astype(int).flatten()
+
+    # Otteniamo l'explanation con Anchor
+    for model in models.keys():
+        explainer = anchor_tabular.AnchorTabularExplainer(
+            class_names=["No Diabetes", "Diabetes"],
+            feature_names=diabetes_dataset.columns[:-1],
+            train_data=X_scaled,
+            categorical_names={}
+        )
+
+        if model == "Neural Network":
+            # Perché serve un array unidimensionale e la Neural Network restituisce un array bidimensionale
+            explanation = explainer.explain_instance(scaled_row.flatten(), flatten_prediction, threshold=0.95)
+        else:
+            explanation = explainer.explain_instance(scaled_row.flatten(), models[model].predict, threshold=0.95)
+
+        print(model)
+        print('Anchor: %s' % (' AND '.join(explanation.names())))
+        print('Precision: %.2f' % explanation.precision())
+        print('Coverage: %.2f' % explanation.coverage())
 
     print(explainability_score)
 
