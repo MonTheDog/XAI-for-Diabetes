@@ -8,3 +8,5 @@ sklearn>=0.0
 scikit-learn>=1.4.0
 imblearn>=0.0
 keras>=3.3.3
+lime>=0.2.0.1
+shap>=0.45.1
