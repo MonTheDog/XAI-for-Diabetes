@@ -87,10 +87,11 @@ def make_predictions(models):
 
 
 def shap_explanation(models, explainability_score, X_scaled, scaled_row_df):
-    # TODO spiegazione valori SHAP
-    # I valori sono da considerarsi additivi verso una delle due previsioni (Se negativi tenderanno verso lo classe
-    # negativa, altrimenti verso quella positiva). Il valore assoluto rappresenterà quanto una colonna pesa
-    # nella previsione finale
+    # I valori SHAP sono da considerarsi additivi verso una delle due previsioni in un problema di classificazione binaria:
+    # se negativi tenderanno verso lo classe negativa (assenza di diabete), altrimenti verso quella positiva (diabete).
+    # Il valore assoluto rappresenterà quanto una colonna pesa nella previsione finale
+    # SHAP eccelle nella spiegabilità globale di un modello, ma in questo studio siamo principalmente interessati
+    # alla spiegabilità locale.
 
     for model in models.keys():
         # Gestiamo ogni modello singolarmente, poiché SHAP funziona diversamente in base al classificatore usato
@@ -130,7 +131,9 @@ def shap_explanation(models, explainability_score, X_scaled, scaled_row_df):
 
 
 def lime_explanation(models, explainability_score, diabetes_dataset, X_scaled, scaled_row_array, predictions):
-    # TODO spiegazione valori LIME
+    # I valori LIME misurano il peso di una caratteristica all'interno di una previsione. Se il segno è positivo allora
+    # la caratteristica aumenta la probabilità della classe predetta, altrimenti se il segno è negativo aumenta la
+    # probabilità della classe opposta. Il valore assoluto rappresenta quanto la caratteristica pesa nella previsione.
 
     # Definiamo una funzione wrapper per la Rete Neurale, per impostare la verbosità a 0 così da evitare di riempire la console
     def non_verbose_prediction(scaled_row):
@@ -181,7 +184,11 @@ def lime_explanation(models, explainability_score, diabetes_dataset, X_scaled, s
 
 
 def ciu_explanation(models, explainability_score, dataframe_scaled, scaled_row_df, predictions):
-    # TODO spiegazione valori CIU
+    # In CIU abbiamo due valori: CI e CU
+    # CI è la Contextual Importance, e misura l'importanza relativa di una caratteristica nel contesto di una particolare
+    # istanza. Un valore CI più alto indica che la caratteristica è importante per la previsione di quella istanza.
+    # CU è la Contextual Utility, e misura l'utilità della caratteristica nel contesto di una particolare istanza. Valuta
+    # quindi quanto il valore della caratteristica sia favorevole o sfavorevole per la classe predetta
 
     # Definiamo una funzione wrapper per la Rete Neurale, per impostare la verbosità a 0 così da evitare di riempire la console
     def non_verbose_prediction(scaled_row):
@@ -207,7 +214,10 @@ def ciu_explanation(models, explainability_score, dataframe_scaled, scaled_row_d
 
 
 def anchor_explanation(models, diabetes_dataset, scaler, X_scaled, scaled_row_array):
-    #TODO spiegazione valori Anchor
+    # Anchor non ha dei valori numerici, ma permette di produrre delle regole che spiegano la previsione. Queste regole
+    # vengono poi utilizzate su istanze "vicine" a quella spiegata, per controllare quanto siano affidabili, attraverso
+    # la Precision (La percentuale di istanze vicine per cui le regole sono vere) e il Coverage (La percentuale di istanze
+    # del dataset che sono coperte da quelle regole)
 
     anchor_result = ""
 
@@ -327,6 +337,8 @@ if __name__ == '__main__':
     while True:
 
         # Chiediamo all'utente quale riga vuole spiegare (Righe interessanti = 1, 93)
+        # 93 ha un errore di previsione da parte di tutti i modelli, ma i valori di explainability fanno pensare il contrario
+        # oltre che avere un Anchor particolarmente complesso
         target_row = int(input(f"Inserisci l'indice della riga da spiegare (0-{len(diabetes_dataset) - 1}) oppure "
                                f"un indice non valido per uscire: "))
 
