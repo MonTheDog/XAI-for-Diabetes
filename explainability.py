@@ -337,7 +337,7 @@ if __name__ == '__main__':
     while True:
 
         # Chiediamo all'utente quale riga vuole spiegare (Righe interessanti = 1, 93)
-        # 93 ha un errore di previsione da parte di tutti i modelli, ma i valori di explainability fanno pensare il contrario
+        # 93 ha un errore di previsione da parte di tutti i modelli, ma i valori di explainability sono particolari
         # oltre che avere un Anchor particolarmente complesso
         target_row = int(input(f"Inserisci l'indice della riga da spiegare (0-{len(diabetes_dataset) - 1}) oppure "
                                f"un indice non valido per uscire: "))
