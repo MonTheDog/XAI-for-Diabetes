@@ -36,7 +36,7 @@ def load_models(models_path):
             models[model_name] = pickle.load(f)
 
 
-def get_row_to_explain(dataset, target_row_index):
+def get_row_to_explain(dataset, scaler, target_row_index):
     # Otteniamo la riga target e la trasformiamo in un Dataframe di una sola riga, per poi rimuovere l'Outcome
     row_to_explain = dataset.iloc[target_row_index]
     row_to_explain_df = row_to_explain.to_frame().T
@@ -346,7 +346,7 @@ if __name__ == '__main__':
             break
 
         # Prendiamo la riga da spiegare, sotto forma di array e di dataframe
-        scaled_row_array, scaled_row_df = get_row_to_explain(diabetes_dataset, target_row)
+        scaled_row_array, scaled_row_df = get_row_to_explain(diabetes_dataset, scaler, target_row)
 
         # Mostriamo se la persona ha o meno il diabete
         diabetes_value = diabetes_dataset["Outcome"][target_row]

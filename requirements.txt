@@ -10,3 +10,5 @@ imblearn>=0.0
 keras>=3.3.3
 lime>=0.2.0.1
 shap>=0.45.1
+streamlit>=1.31.0
+openai>=1.35.5
