@@ -142,10 +142,10 @@ def create_submit(model_input, scaler, model, diabetes_dataset, X_scaled):
             # Effettuiamo la previsione
             prediction = model.predict(scaled_input)
             # Otteniamo l'input da dare al LLM
-            gpt_input = anchor(model, diabetes_dataset, scaler, X_scaled, scaled_input)
+            rules, coverage = anchor(model, diabetes_dataset, scaler, X_scaled, scaled_input)
             # Usiamo il LLM per ottenere una spiegazione human-readable
             # TODO summarization using GPT
-            explanation = gpt_input # explanation = ask_gpt(gpt_input)
+            explanation = ask_gpt(prediction, rules, coverage) # explanation = ask_gpt(gpt_input)
 
     st.divider()
 
@@ -157,8 +157,6 @@ def anchor(model, diabetes_dataset, scaler, X_scaled, scaled_row_array):
     # vengono poi utilizzate su istanze "vicine" a quella spiegata, per controllare quanto siano affidabili, attraverso
     # la Precision (La percentuale di istanze vicine per cui le regole sono vere) e il Coverage (La percentuale di istanze
     # del dataset che sono coperte da quelle regole)
-
-    anchor_result = ""
 
     # Creiamo l'explainer e otteniamo la spiegazione
     explainer = anchor_tabular.AnchorTabularExplainer(
@@ -229,33 +227,52 @@ def anchor(model, diabetes_dataset, scaler, X_scaled, scaled_row_array):
         rules_list.append(rule)
 
     # Inseriamo il risultato del modello nel risultato finale
-    anchor_result += 'Rule: %s' % (' AND '.join(rules_list)) + "\n"
-    anchor_result += 'Coverage: %.2f' % explanation.coverage()
+    rules = 'Observations: %s' % (' AND '.join(rules_list))
+    coverage = '%.2f' % explanation.coverage() # Rinominata "Reliability" per il modello
 
-    return anchor_result
+    return rules, coverage
 
 
 #TODO
-def ask_gpt():
+def ask_gpt(prediction, rules, coverage):
     client = OpenAI(
         api_key=""
     )
 
+    if float(coverage) > 0.15:
+        reliability = "Reliability: High"
+    elif float(coverage) > 0.07:
+        reliability = "Reliability: Medium"
+    else:
+        reliability = "Reliability: Low"
+
+
+    user_input = "Diabetes: " + str(prediction) + ", " + rules + ", " + reliability
     chat_completion = client.chat.completions.create(
         messages=[
             {
                 "role": "system",
-                "content": "You are a helpful assistant."
+                "content": "Role: Diabetes Diagnoser"
+                           "Input: You will receive a string formatted like this: 'Diabetes: x, Observations: y, Reliability: z'"
+                           "where x is a binary value (0 or 1) that represents the diagnosis (0 = Doesn't have diabetes, 1 = Has diabetes),"
+                           "y is a set of observations, which are numerical intervals for certain features divided by the string 'AND',"
+                           "that should give insight on why the patient has or hasn't diabetes, and z is how reliable the explanation is."
+                           "Steps: Start by saying if the patiant has or hasn't diabetes, then explain why citing and explaining each observation in a"
+                           "numbered list. Make sure to include a short explanation of what each feature represents and add medical facts to sustain the observation. "
+                           "Then you should say how much the explanation is reliable"
+                           "Finally, remind the user that the diagnosis can't be 100% reliable and that they should always consult a doctor for a professional opinion."
+                           "Expectation: A human-readable explanation for a diabetes diagnosis."
+                           "Narrowing: Be clear and complete in your explanation, but avoid using complex medical terms"
             },
             {
                 "role": "user",
-                "content": "Say this is a test!"
+                "content": user_input
             }
         ],
         model="gpt-3.5-turbo",
     )
 
-    print(chat_completion.choices[0].message.content)
+    return chat_completion.choices[0].message.content
 
 
 def show_results(prediction, explanation):
