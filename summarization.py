@@ -144,8 +144,7 @@ def create_submit(model_input, scaler, model, diabetes_dataset, X_scaled):
             # Otteniamo l'input da dare al LLM
             rules, coverage = anchor(model, diabetes_dataset, scaler, X_scaled, scaled_input)
             # Usiamo il LLM per ottenere una spiegazione human-readable
-            # TODO summarization using GPT
-            explanation = ask_gpt(prediction, rules, coverage) # explanation = ask_gpt(gpt_input)
+            explanation = ask_gpt(prediction, rules, coverage)
 
     st.divider()
 
@@ -228,17 +227,17 @@ def anchor(model, diabetes_dataset, scaler, X_scaled, scaled_row_array):
 
     # Inseriamo il risultato del modello nel risultato finale
     rules = 'Observations: %s' % (' AND '.join(rules_list))
-    coverage = '%.2f' % explanation.coverage() # Rinominata "Reliability" per il modello
+    coverage = '%.2f' % explanation.coverage()
 
     return rules, coverage
 
 
-#TODO
 def ask_gpt(prediction, rules, coverage):
     client = OpenAI(
         api_key=""
     )
 
+    # Rinominata "Reliability" e sostituita con delle stringhe per far funzionare meglio il modello
     if float(coverage) > 0.15:
         reliability = "Reliability: High"
     elif float(coverage) > 0.07:
