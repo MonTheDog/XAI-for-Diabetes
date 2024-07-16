@@ -259,7 +259,8 @@ def ask_gpt(prediction, rules, coverage):
                            "Steps: Start by saying if the patiant has or hasn't diabetes, then explain why citing and explaining each observation in a"
                            "numbered list. Make sure to include a short explanation of what each feature represents and add medical facts to sustain the observation. "
                            "Then you should say how much the explanation is reliable"
-                           "Finally, remind the user that the diagnosis can't be 100% reliable and that they should always consult a doctor for a professional opinion."
+                           "Finally, remind the user that the diagnosis can't be 100% reliable and that they should always consult a doctor for a professional opinion"
+                           "and that the accuracy of the model used is 82%, the precision is 79% amd the recall is 87%, explaining what this means."
                            "Expectation: A human-readable explanation for a diabetes diagnosis."
                            "Narrowing: Be clear and complete in your explanation, but avoid using complex medical terms"
             },
