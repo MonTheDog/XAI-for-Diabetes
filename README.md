@@ -17,7 +17,7 @@ Questa repo contiene tutto il codice, i grafici e i risultati utilizzati per la 
 - I file results.pkl e scaler.pkl contengono oggetti pickle per eseguire alcune logiche negli script
 
 ## Setup
-<pre><code>```bash 
+```bash 
   # Clona la repository 
   git clone https://github.com/MonTheDog/XAI-for-Diabetes.git 
   cd XAI-for-Diabetes 
@@ -26,14 +26,14 @@ Questa repo contiene tutto il codice, i grafici e i risultati utilizzati per la 
   source venv/bin/activate 
   # Installa le dipendenze 
   pip install -r requirements.txt 
-``` </code></pre>
+```
 
 ## Come eseguire
 Per lanciare l'interfaccia utente bisogna avere una chiave API di OpenAI e inserirla nella variabile api_key a riga 237 dello script summarization.py.
 Dopodiché da bash bisognerà lanciare il seguente comando
-<pre><code>```bash 
+```bash 
   streamlit run summarization.py
-``` </code></pre>
+```
 A questo punto si aprira una finestra nel browser con l'interfaccia utente pronta all'utilizzo
 
 ## Note di riproducibilità
