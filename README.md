@@ -15,6 +15,7 @@ This repository contains all the code, plots, and results used in the Bachelorâ€
 - The summarization.py script includes the LLM-based summarization logic as well as the user interface built with Streamlit.
 - The requirements.txt file lists all the required Python dependencies to run the project.
 - The results.pkl and scaler.pkl files contain serialized Python objects used within the scripts.
+- The prompt hisotry.txt file contains the prompt iterations in order.
 
 ## Setup
 ```bash
